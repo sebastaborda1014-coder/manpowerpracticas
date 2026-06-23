@@ -1,1 +1,1453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prácticas Profesionales · ManpowerGroup Colombia</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23E2001A'/%3E%3Cstop offset='100%25' stop-color='%23ff3d52'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Crect x='4' y='4' width='56' height='56' rx='11' fill='none' stroke='rgba(255,255,255,0.2)' stroke-width='1'/%3E%3Ctext x='32' y='44' font-family='Arial Black,sans-serif' font-size='36' font-weight='900' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════════
+       VARIABLES & RESET
+    ══════════════════════════════════════════ */
+    :root {
+      --red:        #E2001A;
+      --red-dark:   #B0001A;
+      --red-glow:   rgba(226,0,26,0.4);
+      --gold:       #F5A623;
+      --navy:       #00205B;
+      --navy-2:     #001845;
+      --navy-3:     #000D2E;
+      --glass:      rgba(255,255,255,0.05);
+      --glass-b:    rgba(255,255,255,0.10);
+      --border:     rgba(255,255,255,0.10);
+      --text-dim:   rgba(255,255,255,0.55);
+      --text-muted: rgba(255,255,255,0.30);
+    }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--navy-3);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--red); color: #fff; }
+
+    /* ══════════════════════════════════════════
+       ANIMATED BG BLOBS
+    ══════════════════════════════════════════ */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.35;
+    }
+    .blob-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, #002f82, transparent);
+      top: -200px; left: -200px;
+      animation: float1 14s ease-in-out infinite;
+    }
+    .blob-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #E2001A, transparent);
+      top: 30%; right: -150px;
+      animation: float2 18s ease-in-out infinite;
+    }
+    .blob-3 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, #001845, transparent);
+      bottom: -150px; left: 30%;
+      animation: float3 22s ease-in-out infinite;
+    }
+    .blob-4 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(245,166,35,0.4), transparent);
+      top: 60%; left: 10%;
+      animation: float1 16s 4s ease-in-out infinite reverse;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(60px, 40px) scale(1.05); }
+      66%       { transform: translate(-30px, 70px) scale(0.95); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50%       { transform: translate(-80px, 60px) rotate(15deg); }
+    }
+    @keyframes float3 {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(50px, -80px); }
+    }
+
+    /* Noise texture overlay */
+    .bg-noise {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* Grid lines */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 70px 70px;
+    }
+
+    /* Everything above bg */
+    .site-wrapper { position: relative; z-index: 2; }
+
+    /* ══════════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.9rem 3rem;
+      background: rgba(0,13,46,0.75);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      display: flex; align-items: center; gap: 0.8rem;
+      text-decoration: none; color: #fff;
+    }
+
+    .nav-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--red);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1.15rem;
+      box-shadow: 0 0 20px var(--red-glow);
+      flex-shrink: 0;
+    }
+
+    .nav-brand-text { font-size: 0.9rem; font-weight: 700; line-height: 1.2; }
+    .nav-brand-text small { display: block; font-size: 0.7rem; font-weight: 400; color: var(--text-dim); }
+
+    .nav-center {
+      display: flex; gap: 2rem; list-style: none;
+    }
+    .nav-center a {
+      text-decoration: none; color: var(--text-dim);
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em;
+      text-transform: uppercase; transition: color 0.2s;
+    }
+    .nav-center a:hover { color: #fff; }
+
+    .nav-pill {
+      background: linear-gradient(135deg, var(--red), #ff3d52);
+      color: #fff; font-size: 0.72rem; font-weight: 700;
+      padding: 0.4rem 1rem; border-radius: 100px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0.9rem 1.2rem; }
+      .nav-center { display: none; }
+    }
+
+    /* ══════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 8rem 1.5rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Radial spotlight */
+    .hero-spotlight {
+      position: absolute;
+      width: 900px; height: 900px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(226,0,26,0.08) 0%, transparent 65%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* Floating geometric shapes */
+    .geo {
+      position: absolute; pointer-events: none; opacity: 0.12;
+    }
+    .geo-1 {
+      width: 180px; height: 180px;
+      border: 2px solid var(--red);
+      border-radius: 30px;
+      top: 12%; left: 5%;
+      transform: rotate(20deg);
+      animation: geoFloat 8s ease-in-out infinite;
+    }
+    .geo-2 {
+      width: 100px; height: 100px;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 50%;
+      top: 20%; right: 8%;
+      animation: geoFloat 11s 2s ease-in-out infinite reverse;
+    }
+    .geo-3 {
+      width: 60px; height: 60px;
+      background: var(--red);
+      border-radius: 12px;
+      bottom: 20%; left: 8%;
+      transform: rotate(45deg);
+      animation: geoFloat 9s 1s ease-in-out infinite;
+      opacity: 0.15;
+    }
+    .geo-4 {
+      width: 130px; height: 130px;
+      border: 1px solid rgba(245,166,35,0.5);
+      bottom: 25%; right: 6%;
+      border-radius: 50%;
+      animation: geoFloat 13s 3s ease-in-out infinite reverse;
+    }
+
+    @keyframes geoFloat {
+      0%, 100% { transform: translateY(0) rotate(20deg); }
+      50%       { transform: translateY(-25px) rotate(25deg); }
+    }
+
+    /* HERO TEXT */
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      background: rgba(226,0,26,0.12);
+      border: 1px solid rgba(226,0,26,0.3);
+      border-radius: 100px;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #ff7a8a; margin-bottom: 1.8rem;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #ff7a8a;
+      animation: livePulse 1.6s ease-in-out infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,138,0.7); }
+      50%       { box-shadow: 0 0 0 6px rgba(255,122,138,0); }
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 5.5vw, 5rem);
+      font-weight: 900;
+      line-height: 1.06;
+      letter-spacing: -0.035em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .title-line-1 { display: block; color: rgba(255,255,255,0.95); }
+    .title-line-2 {
+      display: block;
+      background: linear-gradient(135deg, var(--red) 0%, #ff4d5e 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .title-line-3 { display: block; color: rgba(255,255,255,0.9); }
+
+    .hero-sub {
+      font-size: 1.05rem; font-weight: 400;
+      color: var(--text-dim); line-height: 1.75;
+      max-width: 620px; margin: 0 auto 2.5rem;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .hero-sub strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    .hero-actions {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 4rem;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      padding: 0.85rem 1.9rem; border-radius: 12px;
+      font-size: 0.88rem; font-weight: 700; text-decoration: none;
+      cursor: pointer; border: none; outline: none;
+      transition: all 0.25s ease; letter-spacing: 0.01em;
+    }
+    .btn-red {
+      background: var(--red); color: #fff;
+      box-shadow: 0 0 0 0 var(--red-glow);
+    }
+    .btn-red:hover {
+      background: var(--red-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px var(--red-glow);
+    }
+    .btn-outline {
+      background: var(--glass);
+      color: rgba(255,255,255,0.85);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .btn-outline:hover {
+      background: var(--glass-b);
+      transform: translateY(-3px);
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      animation: fadeUp 0.7s 0.6s ease both;
+    }
+    .scroll-hint span {
+      font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .mouse {
+      width: 22px; height: 36px;
+      border: 2px solid rgba(255,255,255,0.18);
+      border-radius: 20px; display: flex;
+      justify-content: center; padding-top: 6px;
+    }
+    .wheel {
+      width: 3px; height: 8px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 2px;
+      animation: wheel 1.8s ease-in-out infinite;
+    }
+    @keyframes wheel {
+      0%   { opacity: 1; transform: translateY(0); }
+      80%  { opacity: 0; transform: translateY(9px); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════════
+       MARQUEE STRIP
+    ══════════════════════════════════════════ */
+    .marquee-strip {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(226,0,26,0.06);
+      padding: 0.9rem 0;
+    }
+    .marquee-track {
+      display: flex; gap: 3rem;
+      animation: marquee 25s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-track span {
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-dim); flex-shrink: 0;
+    }
+    .marquee-track .dot-sep {
+      color: var(--red); font-size: 1rem;
+    }
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ══════════════════════════════════════════
+       SHARED LAYOUT
+    ══════════════════════════════════════════ */
+    section { padding: 6rem 1.5rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .sec-label {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--red);
+      margin-bottom: 0.9rem;
+    }
+    .sec-label::before {
+      content: ''; width: 22px; height: 2px;
+      background: var(--red); border-radius: 2px;
+    }
+
+    .sec-title {
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      font-weight: 800; line-height: 1.15;
+      letter-spacing: -0.025em; margin-bottom: 1rem;
+    }
+    .sec-desc {
+      color: var(--text-dim); font-size: 0.95rem;
+      line-height: 1.75; max-width: 560px;
+    }
+
+    /* Reveal on scroll */
+    .reveal {
+      opacity: 0; transform: translateY(35px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.up { opacity: 1; transform: translateY(0); }
+    .reveal-left  { opacity: 0; transform: translateX(-35px); transition: opacity 0.75s ease, transform 0.75s ease; }
+    .reveal-right { opacity: 0; transform: translateX(35px);  transition: opacity 0.75s ease, transform 0.75s ease; }
+    .reveal-left.up, .reveal-right.up { opacity: 1; transform: translateX(0); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════════
+       EMPRESA: MISIÓN · VISIÓN · SOBRE NOSOTROS
+    ══════════════════════════════════════════ */
+    .empresa-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    .emp-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 2.2rem;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s ease;
+      position: relative; overflow: hidden;
+    }
+    .emp-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: 0; transition: opacity 0.3s;
+      border-radius: inherit;
+    }
+    .emp-card:hover { transform: translateY(-5px); }
+    .emp-card:hover::before { opacity: 1; }
+
+    .emp-card.mision::before  { background: linear-gradient(135deg,rgba(226,0,26,0.07),transparent); }
+    .emp-card.vision::before  { background: linear-gradient(135deg,rgba(0,57,166,0.1),transparent); }
+    .emp-card.sobre::before   { background: linear-gradient(135deg,rgba(245,166,35,0.06),transparent); }
+
+    .emp-card.mision  { border-top: 3px solid var(--red); }
+    .emp-card.vision  { border-top: 3px solid #0039a6; }
+    .emp-card.sobre   { grid-column: span 2; border-top: 3px solid var(--gold); }
+
+    .emp-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.2rem;
+    }
+    .emp-icon.r { background: rgba(226,0,26,0.15); border: 1px solid rgba(226,0,26,0.3); }
+    .emp-icon.b { background: rgba(0,57,166,0.2);  border: 1px solid rgba(0,57,166,0.35); }
+    .emp-icon.g { background: rgba(245,166,35,0.12); border: 1px solid rgba(245,166,35,0.3); }
+
+    .emp-card h3 {
+      font-size: 0.7rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+    .emp-card.mision h3 { color: #ff7a8a; }
+    .emp-card.vision h3 { color: #7aadff; }
+    .emp-card.sobre h3  { color: var(--gold); }
+
+    .emp-card p {
+      color: var(--text-dim); font-size: 0.9rem; line-height: 1.7;
+    }
+
+    .sobre-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center;
+    }
+
+    .sobre-stats {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+    }
+    .s-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .s-stat .val {
+      font-size: 1.8rem; font-weight: 900;
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.6));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1;
+    }
+    .s-stat .val span { font-size: 1rem; color: var(--red); -webkit-text-fill-color: var(--red); }
+    .s-stat .lbl {
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-muted); margin-top: 0.3rem;
+    }
+
+    /* ══════════════════════════════════════════
+       IMPORTANCIA / WHY SECTION
+    ══════════════════════════════════════════ */
+    .why-section {
+      background: linear-gradient(180deg, transparent, rgba(0,32,91,0.35) 50%, transparent);
+    }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-top: 3.5rem;
+    }
+
+    .why-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.8rem 1.5rem;
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+      position: relative; overflow: hidden;
+      cursor: default;
+    }
+    .why-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+      transform: scaleX(0); transition: transform 0.3s;
+    }
+    .why-card:hover { transform: translateY(-5px); border-color: rgba(226,0,26,0.3); }
+    .why-card:hover::after { transform: scaleX(1); }
+
+    .why-num {
+      font-size: 2.8rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--red) 0%, rgba(226,0,26,0.55) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1; margin-bottom: 0.8rem;
+      letter-spacing: -0.05em;
+    }
+    .why-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .why-card p  { color: var(--text-dim); font-size: 0.83rem; line-height: 1.65; }
+
+    /* ══════════════════════════════════════════
+       DOCUMENTS
+    ══════════════════════════════════════════ */
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.4rem;
+      margin-top: 3.5rem;
+    }
+
+    .doc-card {
+      position: relative;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.9rem;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      cursor: pointer;
+    }
+    .doc-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .doc-card.word::before  { background: radial-gradient(ellipse at top left, rgba(43,87,154,0.12), transparent 60%); }
+    .doc-card.excel::before { background: radial-gradient(ellipse at top left, rgba(33,115,70,0.12), transparent 60%); }
+    .doc-card.pdf::before   { background: radial-gradient(ellipse at top left, rgba(220,53,69,0.10), transparent 60%); }
+
+    .doc-card:hover { transform: translateY(-6px); }
+    .doc-card.word:hover  { border-color: rgba(43,87,154,0.5);  box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 25px rgba(43,87,154,0.15); }
+    .doc-card.excel:hover { border-color: rgba(33,115,70,0.5);  box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 25px rgba(33,115,70,0.15); }
+    .doc-card.pdf:hover   { border-color: rgba(220,53,69,0.5);  box-shadow: 0 20px 50px rgba(0,0,0,0.35), 0 0 25px rgba(220,53,69,0.15); }
+    .doc-card:hover::before { opacity: 1; }
+
+    .doc-badge {
+      position: absolute; top: 1.2rem; right: 1.2rem;
+      font-size: 0.62rem; font-weight: 800;
+      letter-spacing: 0.1em; padding: 0.22rem 0.65rem;
+      border-radius: 6px;
+    }
+    .doc-badge.word  { background: rgba(43,87,154,0.25); color: #92b8ff; border: 1px solid rgba(43,87,154,0.4); }
+    .doc-badge.excel { background: rgba(33,115,70,0.25);  color: #7dffa5; border: 1px solid rgba(33,115,70,0.4); }
+    .doc-badge.pdf   { background: rgba(220,53,69,0.2);   color: #ffaaaa; border: 1px solid rgba(220,53,69,0.35); }
+
+    .doc-emoji {
+      font-size: 2.2rem; margin-bottom: 1.1rem; position: relative; z-index: 1;
+    }
+
+    .doc-card h3 {
+      font-size: 0.95rem; font-weight: 700; line-height: 1.35;
+      margin-bottom: 0.55rem; position: relative; z-index: 1;
+    }
+    .doc-card p {
+      font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;
+      flex: 1; position: relative; z-index: 1;
+    }
+
+    .doc-cta {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      margin-top: 1.4rem; padding: 0.6rem 1.1rem;
+      border-radius: 10px; font-size: 0.78rem; font-weight: 700;
+      transition: all 0.2s; align-self: flex-start;
+      position: relative; z-index: 1;
+    }
+    .doc-card.word .doc-cta  { background:rgba(43,87,154,0.15); color:#92b8ff; border:1px solid rgba(43,87,154,0.3); }
+    .doc-card.excel .doc-cta { background:rgba(33,115,70,0.15);  color:#7dffa5; border:1px solid rgba(33,115,70,0.3); }
+    .doc-card.pdf .doc-cta   { background:rgba(220,53,69,0.12);  color:#ffaaaa; border:1px solid rgba(220,53,69,0.3); }
+
+    .doc-card.word:hover .doc-cta  { background:#2b579a; color:#fff; border-color:#2b579a; box-shadow:0 4px 18px rgba(43,87,154,0.4); }
+    .doc-card.excel:hover .doc-cta { background:#217346; color:#fff; border-color:#217346; box-shadow:0 4px 18px rgba(33,115,70,0.4); }
+    .doc-card.pdf:hover .doc-cta   { background:#cc0000; color:#fff; border-color:#cc0000; box-shadow:0 4px 18px rgba(204,0,0,0.4); }
+
+    .arr { transition: transform 0.2s; }
+    .doc-card:hover .arr { transform: translate(3px, -3px); }
+
+    /* ══════════════════════════════════════════
+       CLIENTS
+    ══════════════════════════════════════════ */
+    .clients-section {
+      background: linear-gradient(180deg, transparent, rgba(0,20,70,0.5) 50%, transparent);
+    }
+
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 1rem;
+      margin-top: 3.5rem;
+    }
+
+    .client-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.3rem 1rem;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0.6rem;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+    .client-card:hover {
+      transform: translateY(-4px);
+      background: var(--glass-b);
+    }
+
+    .client-logo-circle {
+      width: 50px; height: 50px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 900;
+      transition: transform 0.3s;
+    }
+    .client-card:hover .client-logo-circle { transform: scale(1.08); }
+
+    .client-name {
+      font-size: 0.78rem; font-weight: 700;
+      text-align: center; color: rgba(255,255,255,0.8);
+      line-height: 1.25;
+    }
+    .client-sector {
+      font-size: 0.65rem; font-weight: 500;
+      color: var(--text-muted); text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    /* ══════════════════════════════════════════
+       QUOTE SECTION
+    ══════════════════════════════════════════ */
+    .quote-section {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, rgba(226,0,26,0.08) 0%, rgba(0,32,91,0.4) 100%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quote-wrap {
+      max-width: 800px; margin: 0 auto;
+      text-align: center; position: relative; z-index: 1;
+    }
+
+    .quote-mark {
+      font-size: 7rem; line-height: 0.7;
+      color: rgba(226,0,26,0.18); font-weight: 900;
+      font-family: Georgia, serif;
+      display: block; margin-bottom: 1rem;
+    }
+
+    .quote-text {
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-weight: 300; line-height: 1.55;
+      font-style: italic;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: -0.01em;
+      margin-bottom: 2rem;
+    }
+
+    .quote-text em { font-style: normal; font-weight: 700; color: #fff; }
+
+    .quote-author {
+      display: inline-flex; align-items: center; gap: 0.75rem;
+    }
+    .author-line {
+      width: 30px; height: 2px;
+      background: var(--red); border-radius: 2px;
+    }
+    .author-name {
+      font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--red);
+    }
+
+    .quote-bg-text {
+      position: absolute;
+      font-size: 20rem; font-weight: 900;
+      color: rgba(255,255,255,0.018);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap; pointer-events: none;
+      letter-spacing: -0.05em;
+    }
+
+    /* ══════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════ */
+    footer {
+      padding: 3rem 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-brand {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-bar {
+      width: 50px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+      margin: 1rem auto;
+    }
+
+    footer p {
+      font-size: 0.8rem; color: var(--text-muted); line-height: 1.7;
+    }
+    footer strong { color: var(--text-dim); }
+
+    /* ══════════════════════════════════════════
+       IMAGE UTILITIES (distributed)
+    ══════════════════════════════════════════ */
+
+    /* Split layout: text | image */
+    .sec-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+      margin-bottom: 3.5rem;
+    }
+    @media (max-width: 768px) {
+      .sec-split { grid-template-columns: 1fr; gap: 2rem; }
+    }
+
+    .split-photo {
+      position: relative; border-radius: 22px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .split-photo img {
+      width: 100%; display: block; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .split-photo:hover img { transform: scale(1.04); }
+    .split-photo-badge {
+      position: absolute; bottom: 1.1rem; left: 1.1rem;
+      background: rgba(0,13,46,0.82); backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.4rem 0.85rem;
+      font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.85);
+    }
+
+    /* ManpowerGroup logo pill inside card */
+    .mpg-logo-wrap {
+      background: #fff; border-radius: 14px;
+      padding: 0.75rem 1.2rem;
+      display: inline-flex; align-items: center;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .mpg-logo-wrap img {
+      height: 38px; width: auto; display: block; object-fit: contain;
+    }
+
+    /* Team banner: full-width cinematic strip */
+    .team-banner {
+      position: relative; border-radius: 22px; overflow: hidden;
+      border: 1px solid var(--border);
+      height: 300px; margin: 3rem 0 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    .team-banner img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 25%;
+      display: block;
+      transition: transform 0.8s ease;
+    }
+    .team-banner:hover img { transform: scale(1.04); }
+    .team-banner-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,13,46,0.78) 0%, rgba(226,0,26,0.18) 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.6rem; text-align: center; padding: 2rem;
+    }
+    .team-banner-overlay h4 {
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
+      font-weight: 800; letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .team-banner-overlay p {
+      font-size: 0.82rem; color: rgba(255,255,255,0.6);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .team-banner-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(226,0,26,0.2); border: 1px solid rgba(226,0,26,0.35);
+      border-radius: 100px; padding: 0.3rem 1rem;
+      font-size: 0.7rem; font-weight: 700;
+      color: #ff8a94; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ══════════════════════════════════════════
+       SHAREPOINT SECTION
+    ══════════════════════════════════════════ */
+    .sp-link {
+      display: block;
+      text-decoration: none;
+      margin-top: 3rem;
+    }
+
+    .sp-img-wrap {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      max-width: 900px;
+      margin: 0 auto;
+      height: 380px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sp-link:hover .sp-img-wrap {
+      transform: translateY(-6px);
+      box-shadow: 0 30px 80px rgba(226,0,26,0.2), 0 20px 60px rgba(0,0,0,0.5);
+      border-color: rgba(226,0,26,0.4);
+    }
+
+    .sp-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+
+    .sp-link:hover .sp-img-wrap img { transform: scale(1.04); }
+
+    .sp-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,13,46,0.72) 0%, rgba(226,0,26,0.22) 100%);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.3s ease;
+    }
+
+    .sp-link:hover .sp-overlay {
+      background: linear-gradient(135deg, rgba(0,13,46,0.55) 0%, rgba(226,0,26,0.35) 100%);
+    }
+
+    .sp-overlay-inner {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0.7rem;
+      text-align: center; padding: 2rem;
+    }
+
+    .sp-icon {
+      font-size: 2.8rem;
+      filter: drop-shadow(0 0 18px rgba(226,0,26,0.6));
+      transition: transform 0.3s ease;
+    }
+
+    .sp-link:hover .sp-icon { transform: scale(1.15); }
+
+    .sp-overlay-text {
+      font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .sp-overlay-sub {
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* ══════════════════════════════════════════
+       CURSOR GLOW
+    ══════════════════════════════════════════ */
+    #cursor-glow {
+      position: fixed; pointer-events: none; z-index: 9999;
+      width: 380px; height: 380px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(226,0,26,0.09) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: left 0.08s ease, top 0.08s ease;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Cursor glow -->
+<div id="cursor-glow"></div>
+
+<!-- BG layers -->
+<div class="bg-layer">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+<div class="bg-noise"></div>
+<div class="bg-grid"></div>
+
+<div class="site-wrapper">
+
+  <!-- ─── NAVBAR ─── -->
+  <nav>
+    <a class="nav-brand" href="#inicio">
+      <div class="nav-icon">M</div>
+      <div class="nav-brand-text">
+        ManpowerGroup Colombia
+        <small>Portafolio de Prácticas Profesionales</small>
+      </div>
+    </a>
+    <ul class="nav-center">
+      <li><a href="#empresa">La Empresa</a></li>
+      <li><a href="#importancia">¿Por Qué?</a></li>
+      <li><a href="#documentos">Documentos</a></li>
+      <li><a href="#clientes">Clientes</a></li>
+    </ul>
+    <span class="nav-pill">Prácticas 2026</span>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero" id="inicio">
+    <div class="hero-spotlight"></div>
+    <div class="geo geo-1"></div>
+    <div class="geo geo-2"></div>
+    <div class="geo geo-3"></div>
+    <div class="geo geo-4"></div>
+
+    <div class="hero-tag">
+      <span class="live-dot"></span>
+      ManpowerGroup Colombia · Prácticas Profesionales 2026
+    </div>
+
+    <h1 class="hero-title">
+      <span class="title-line-1">El Proyecto que</span>
+      <span class="title-line-2">Estandariza el Futuro</span>
+      <span class="title-line-3">de los Practicantes</span>
+    </h1>
+
+    <p class="hero-sub">
+      Un portafolio que documenta el diseño, la implementación y los resultados
+      de un sistema de estandarización de procesos para practicantes en
+      <strong>ManpowerGroup Colombia</strong> — construyendo puentes entre
+      la academia y el mundo empresarial.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#documentos" class="btn btn-red">📂 Ver Documentos</a>
+      <a href="#empresa" class="btn btn-outline">🏢 Conocer la Empresa</a>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="mouse"><div class="wheel"></div></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ─── MARQUEE ─── -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span>ManpowerGroup Colombia</span><span class="dot-sep">◆</span>
+      <span>Estandarización de Procesos</span><span class="dot-sep">◆</span>
+      <span>Prácticas Profesionales 2026</span><span class="dot-sep">◆</span>
+      <span>Gestión del Talento</span><span class="dot-sep">◆</span>
+      <span>KPIs · Seguimiento · Impacto</span><span class="dot-sep">◆</span>
+      <span>Transformando el Trabajo</span><span class="dot-sep">◆</span>
+      <span>ManpowerGroup Colombia</span><span class="dot-sep">◆</span>
+      <span>Estandarización de Procesos</span><span class="dot-sep">◆</span>
+      <span>Prácticas Profesionales 2026</span><span class="dot-sep">◆</span>
+      <span>Gestión del Talento</span><span class="dot-sep">◆</span>
+      <span>KPIs · Seguimiento · Impacto</span><span class="dot-sep">◆</span>
+      <span>Transformando el Trabajo</span><span class="dot-sep">◆</span>
+    </div>
+  </div>
+
+  <!-- ─── EMPRESA ─── -->
+  <section id="empresa">
+    <div class="container">
+
+      <!-- Split: texto izquierda · foto reunión derecha -->
+      <div class="sec-split reveal">
+        <div>
+          <div class="sec-label">La empresa</div>
+          <h2 class="sec-title">ManpowerGroup:<br />Líderes Mundiales en Talento</h2>
+          <p class="sec-desc">
+            Más de 75 años conectando personas con oportunidades y empresas con el talento
+            que necesitan para crecer en un mundo en constante cambio.
+          </p>
+        </div>
+        <div class="split-photo" style="height:320px;">
+          <img
+            src="../Carpeta 2/WhatsApp Image 2026-06-23 at 12.10.36 PM (1).jpeg"
+            alt="Reunión estratégica ManpowerGroup"
+          />
+          <span class="split-photo-badge">🏢 Estrategia y liderazgo empresarial</span>
+        </div>
+      </div>
+
+      <div class="empresa-grid">
+        <div class="emp-card mision reveal">
+          <div class="emp-icon r">🎯</div>
+          <h3>Misión</h3>
+          <p>
+            Conectar personas con trabajo significativo, contribuyendo al bienestar individual
+            y al desarrollo sostenible de las organizaciones. Empoderar a empresas e individuos
+            para prosperar en el cambiante mundo del trabajo mediante soluciones de talento
+            innovadoras, ágiles y centradas en las personas.
+          </p>
+        </div>
+
+        <div class="emp-card vision reveal">
+          <div class="emp-icon b">🔭</div>
+          <h3>Visión</h3>
+          <p>
+            Ser la empresa líder mundial en soluciones de fuerza laboral, creando oportunidades
+            significativas para las personas, brindando a nuestros clientes la agilidad
+            que necesitan y contribuyendo a la prosperidad a través de un mercado
+            de trabajo eficiente e impulsado por el talento.
+          </p>
+        </div>
+
+        <div class="emp-card sobre reveal">
+          <div class="sobre-inner">
+            <div>
+              <div class="mpg-logo-wrap">
+                <img src="../Carpeta 2/WhatsApp Image 2026-06-23 at 12.10.35 PM.jpeg" alt="ManpowerGroup logo" />
+              </div>
+              <h3>Sobre ManpowerGroup</h3>
+              <p>
+                Fundada en 1948, ManpowerGroup es una empresa multinacional especializada
+                en soluciones integrales de talento humano. Opera en más de <strong style="color:rgba(255,255,255,0.85)">75 países</strong> y
+                atiende a más de <strong style="color:rgba(255,255,255,0.85)">400,000 clientes</strong> alrededor del mundo.
+                En Colombia es un referente en reclutamiento, selección, outsourcing de personal,
+                evaluaciones psicotécnicas, capacitación y gestión estratégica del capital humano,
+                impactando positivamente a miles de empresas y candidatos cada año.
+              </p>
+            </div>
+            <div class="sobre-stats">
+              <div class="s-stat">
+                <div class="val">75<span>+</span></div>
+                <div class="lbl">Países</div>
+              </div>
+              <div class="s-stat">
+                <div class="val">400K<span>+</span></div>
+                <div class="lbl">Clientes</div>
+              </div>
+              <div class="s-stat">
+                <div class="val">30K<span>+</span></div>
+                <div class="lbl">Empleados</div>
+              </div>
+              <div class="s-stat">
+                <div class="val">75<span>años</span></div>
+                <div class="lbl">De experiencia</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── IMPORTANCIA ─── -->
+  <section id="importancia" class="why-section">
+    <div class="container">
+      <div class="reveal">
+        <div class="sec-label">El porqué del proyecto</div>
+        <h2 class="sec-title">¿Por qué Estandarizar<br />los Procesos de los Practicantes?</h2>
+        <p class="sec-desc">
+          La estandarización no es burocracia — es la base del crecimiento profesional
+          y la eficiencia organizacional. Estas son las razones que impulsaron este proyecto.
+        </p>
+      </div>
+
+      <!-- Banner foto equipo -->
+      <div class="team-banner reveal">
+        <img
+          src="../Carpeta 2/WhatsApp Image 2026-06-23 at 12.10.36 PM.jpeg"
+          alt="Equipo ManpowerGroup celebrando logros"
+        />
+        <div class="team-banner-overlay">
+          <span class="team-banner-tag"><span class="live-dot"></span> Talento en acción</span>
+          <h4>Cuando el equipo crece, la empresa transforma</h4>
+          <p>ManpowerGroup Colombia · Prácticas Profesionales 2026</p>
+        </div>
+      </div>
+
+      <div class="why-grid">
+        <div class="why-card reveal">
+          <div class="why-num">01</div>
+          <h4>Reducción del Tiempo de Adaptación</h4>
+          <p>Sin procesos documentados, cada practicante comienza desde cero. La estandarización
+             reduce el onboarding de semanas a días, acelerando su curva de aprendizaje y aporte real.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-num">02</div>
+          <h4>Consistencia y Calidad Garantizada</h4>
+          <p>Los procesos estandarizados garantizan que todas las tareas se realicen con el mismo
+             nivel de calidad, independientemente de quién las ejecute o en qué momento.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-num">03</div>
+          <h4>Transferencia de Conocimiento</h4>
+          <p>El conocimiento deja de vivir en la cabeza de las personas y pasa a documentos
+             accesibles. Cuando un practicante se va, su conocimiento se queda en la empresa.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-num">04</div>
+          <h4>Mejora Continua Medible</h4>
+          <p>Solo lo que se mide se puede mejorar. Con procesos claros y KPIs definidos,
+             es posible identificar cuellos de botella y oportunidades de optimización en tiempo real.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-num">05</div>
+          <h4>Desarrollo Profesional Acelerado</h4>
+          <p>Un practicante con guías claras se enfoca en aprender y aportar valor, no en adivinar
+             cómo hacer las cosas. Esto potencia su crecimiento y satisfacción laboral.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-num">06</div>
+          <h4>Impacto Organizacional Real</h4>
+          <p>Las empresas que estandarizan sus procesos con practicantes logran mayor productividad,
+             menor rotación y una imagen institucional sólida ante universidades aliadas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DOCUMENTOS ─── -->
+  <section id="documentos">
+    <div class="container">
+
+      <!-- Split: texto izquierda · foto KPIs derecha -->
+      <div class="sec-split reveal">
+        <div>
+          <div class="sec-label">Entregables del proyecto</div>
+          <h2 class="sec-title">Documentos del<br />Portafolio Profesional</h2>
+          <p class="sec-desc">
+            Clic en cualquier tarjeta para abrir el documento. Cada archivo representa
+            semanas de investigación, diseño e implementación dentro de ManpowerGroup.
+          </p>
+        </div>
+        <div class="split-photo" style="height:280px;">
+          <img
+            src="../Carpeta 2/WhatsApp Image 2026-06-23 at 12.10.37 PM.jpeg"
+            alt="Dashboard KPIs ManpowerGroup en laptop"
+          />
+          <span class="split-photo-badge">📊 KPIs y seguimiento en tiempo real</span>
+        </div>
+      </div>
+
+      <div class="docs-grid">
+
+        <a class="doc-card word reveal" href="Cartilla_Estandarizacion Practicantes.docx">
+          <span class="doc-badge word">WORD</span>
+          <div class="doc-emoji">📘</div>
+          <h3>Cartilla de Estandarización de Procesos para Practicantes</h3>
+          <p>Guía completa con lineamientos, procedimientos y mejores prácticas
+             estandarizadas para los practicantes de ManpowerGroup Colombia.</p>
+          <span class="doc-cta">Abrir documento <span class="arr">↗</span></span>
+        </a>
+
+        <a class="doc-card word reveal" href="Proyecto.docx">
+          <span class="doc-badge word">WORD</span>
+          <div class="doc-emoji">📄</div>
+          <h3>Documento del Proyecto de Mejora</h3>
+          <p>Propuesta, desarrollo y resultados del proyecto de mejora continua
+             implementado durante las prácticas profesionales.</p>
+          <span class="doc-cta">Abrir documento <span class="arr">↗</span></span>
+        </a>
+
+        <a class="doc-card word reveal" href="Grabaciones proyecto práctica empresarial (3).docx">
+          <span class="doc-badge word">WORD</span>
+          <div class="doc-emoji">🎙️</div>
+          <h3>Grabaciones del Proyecto de Práctica Empresarial</h3>
+          <p>Registro y transcripción de reuniones, entrevistas y sesiones clave
+             realizadas a lo largo del proyecto de práctica empresarial.</p>
+          <span class="doc-cta">Abrir documento <span class="arr">↗</span></span>
+        </a>
+
+        <a class="doc-card excel reveal" href="Plan Seguimiento del Proyecto de Mejora.xlsx">
+          <span class="doc-badge excel">EXCEL</span>
+          <div class="doc-emoji">📊</div>
+          <h3>Plan de Seguimiento del Proyecto de Mejora</h3>
+          <p>Dashboard de KPIs con indicadores clave de rendimiento, metas,
+             avances y análisis de resultados del proyecto.</p>
+          <span class="doc-cta">Abrir documento <span class="arr">↗</span></span>
+        </a>
+
+        <a class="doc-card excel reveal" href="Cronograma Proyecto.xlsx">
+          <span class="doc-badge excel">EXCEL</span>
+          <div class="doc-emoji">📅</div>
+          <h3>Cronograma del Proyecto</h3>
+          <p>Planificación de actividades, hitos y fechas de entrega de cada
+             fase del proyecto durante el periodo de prácticas.</p>
+          <span class="doc-cta">Abrir documento <span class="arr">↗</span></span>
+        </a>
+
+        <a class="doc-card pdf reveal" href="Facturación.pdf">
+          <span class="doc-badge pdf">PDF</span>
+          <div class="doc-emoji">🧾</div>
+          <h3>Facturación</h3>
+          <p>Documentación de facturación relacionada con el proyecto y las
+             actividades realizadas durante el periodo de prácticas profesionales.</p>
+          <span class="doc-cta">Abrir documento <span class="arr">↗</span></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SHAREPOINT CARPETA PRACTICANTES ─── -->
+  <section id="carpeta-practicantes">
+    <div class="container">
+      <div class="reveal">
+        <div class="sec-label">Acceso directo</div>
+        <h2 class="sec-title">Carpeta de Practicantes<br />en SharePoint</h2>
+        <p class="sec-desc">
+          Haz clic en la imagen para acceder directamente a la carpeta de practicantes en SharePoint,
+          donde está toda la documentación y el control de procesos de los practicantes de ManpowerGroup Colombia.
+        </p>
+      </div>
+
+      <a
+        href="https://manpowergroupapps.sharepoint.com/:f:/r/sites/KH-SharepointManpowerGroup/Gerencia%20de%20Facturacin/Facturaci%C3%B3n/Facturaci%C3%B3n%20Practicantes?csf=1&web=1&e=vbqfga"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="sp-link reveal"
+      >
+        <div class="sp-img-wrap">
+          <img
+            src="../Carpeta 2/Gemini_Generated_Image_uhurrkuhurrkuhur (1).png"
+            alt="Carpeta de practicantes en SharePoint"
+          />
+          <div class="sp-overlay">
+            <div class="sp-overlay-inner">
+              <span class="sp-icon">🔗</span>
+              <span class="sp-overlay-text">Clic para abrir la carpeta en SharePoint</span>
+              <span class="sp-overlay-sub">Documentación · Control de procesos · Seguimiento</span>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ─── CLIENTES ─── -->
+  <section id="clientes" class="clients-section">
+    <div class="container">
+      <div class="reveal">
+        <div class="sec-label">Red empresarial</div>
+        <h2 class="sec-title">Principales Clientes de<br />ManpowerGroup Colombia</h2>
+        <p class="sec-desc">
+          ManpowerGroup Colombia conecta al talento con las empresas más importantes
+          del país, siendo un aliado estratégico de los líderes de cada industria.
+        </p>
+      </div>
+
+      <div class="clients-grid">
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(0,140,72,0.15);border:1px solid rgba(0,140,72,0.3);">⛽</div>
+          <div class="client-name">Ecopetrol</div>
+          <div class="client-sector">Energía · Petróleo</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(226,0,26,0.15);border:1px solid rgba(226,0,26,0.3);">✈️</div>
+          <div class="client-name">Avianca</div>
+          <div class="client-sector">Aviación · Transporte</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(226,0,26,0.15);border:1px solid rgba(226,0,26,0.3);">📱</div>
+          <div class="client-name">Claro Colombia</div>
+          <div class="client-sector">Telecomunicaciones</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(0,140,72,0.15);border:1px solid rgba(0,140,72,0.3);">💡</div>
+          <div class="client-name">EPM</div>
+          <div class="client-sector">Energía · Servicios</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(226,0,26,0.15);border:1px solid rgba(226,0,26,0.3);">🏦</div>
+          <div class="client-name">Davivienda</div>
+          <div class="client-sector">Banca · Finanzas</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);">🏗️</div>
+          <div class="client-name">Cementos Argos</div>
+          <div class="client-sector">Construcción</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(226,0,26,0.15);border:1px solid rgba(226,0,26,0.3);">🥤</div>
+          <div class="client-name">Coca-Cola FEMSA</div>
+          <div class="client-sector">Consumo Masivo</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(0,57,166,0.2);border:1px solid rgba(0,57,166,0.35);">🏪</div>
+          <div class="client-name">Grupo Éxito</div>
+          <div class="client-sector">Retail · Comercio</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);">🥛</div>
+          <div class="client-name">Nestlé Colombia</div>
+          <div class="client-sector">Alimentos · Nutrición</div>
+        </div>
+
+        <div class="client-card reveal">
+          <div class="client-logo-circle" style="background:rgba(0,140,72,0.15);border:1px solid rgba(0,140,72,0.3);">🧴</div>
+          <div class="client-name">Johnson & Johnson</div>
+          <div class="client-sector">Salud · Farmacéutica</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FRASE MOTIVACIONAL ─── -->
+  <section class="quote-section">
+    <div class="container">
+      <div class="quote-wrap reveal">
+        <span class="quote-mark">"</span>
+        <p class="quote-text">
+          El éxito no es la clave de la felicidad.<br />
+          La felicidad es la clave del éxito.<br />
+          <em>Si amas lo que haces, tendrás éxito.</em>
+        </p>
+        <div class="quote-author">
+          <div class="author-line"></div>
+          <span class="author-name">Albert Schweitzer</span>
+          <div class="author-line"></div>
+        </div>
+      </div>
+    </div>
+    <div class="quote-bg-text">ÉXITO</div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-brand">
+      <div class="nav-icon">M</div>
+      <span style="font-weight:700;font-size:0.95rem;">ManpowerGroup Colombia</span>
+    </div>
+    <div class="footer-bar"></div>
+    <p>
+      <strong>Portafolio de Prácticas Profesionales · 2026</strong><br />
+      Desarrollado con dedicación y compromiso durante el período de prácticas<br />
+      en ManpowerGroup Colombia — <em>Transformando el futuro del trabajo.</em>
+    </p>
+  </footer>
+
+</div><!-- /site-wrapper -->
+
+<script>
+  // Cursor glow
+  const glow = document.getElementById('cursor-glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('up'), i * 60);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Counter animation for s-stat values
+  function animateCount(el, target, suffix) {
+    let start = 0;
+    const dur = 1800;
+    const step = ts => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const val = Math.round(ease * target);
+      el.innerHTML = (val >= 1000 ? (val/1000).toFixed(0) + 'K' : val) + `<span>${suffix}</span>`;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Trigger counters when visible
+  const statEls = document.querySelectorAll('.s-stat');
+  const statData = [
+    { target: 75,    suffix: '+' },
+    { target: 400,   suffix: 'K+' },
+    { target: 30,    suffix: 'K+' },
+    { target: 75,    suffix: 'años' },
+  ];
+  let statsTriggered = false;
+  const statObserver = new IntersectionObserver(entries => {
+    if (entries.some(e => e.isIntersecting) && !statsTriggered) {
+      statsTriggered = true;
+      statEls.forEach((el, i) => {
+        const valEl = el.querySelector('.val');
+        if (valEl && statData[i]) {
+          animateCount(valEl, statData[i].target, statData[i].suffix);
+        }
+      });
+    }
+  }, { threshold: 0.3 });
+  statEls.forEach(el => statObserver.observe(el));
+</script>
+</body>
+</html>
